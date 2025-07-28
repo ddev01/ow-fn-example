@@ -2,6 +2,8 @@ import { app as electronApp } from 'electron';
 import { overwolf } from '@overwolf/ow-electron'; // TODO: wil be @overwolf/ow-electron
 import EventEmitter from 'events';
 import { kGameIds } from '@overwolf/ow-electron-packages-types/game-list';
+import * as fs from 'fs';
+import * as path from 'path';
 
 const app = electronApp as overwolf.OverwolfApp;
 
@@ -144,12 +146,15 @@ export class GameEventsService extends EventEmitter {
 
 			// Fortnite specific event handling
 			if (gameId === kGameIds.Fortnite) {
+				const gameName = 'fortnite' as string;
 				const eventData = args[0] as any;
 				if (typeof eventData === 'object' && eventData !== null) {
-					switch (eventData.event) {
+					switch (eventData.key) {
 						case 'killed':
+							this.updateCounterFile(gameName, 'killed');
 							break;
 						case 'death':
+							this.updateCounterFile(gameName, 'death');
 							break;
 					}
 				}
@@ -162,5 +167,32 @@ export class GameEventsService extends EventEmitter {
 
 			this.activeGame = 0;
 		});
+	}
+
+	private updateCounterFile(name: string, event: string): number {
+		const countersDir = path.join(process.cwd(), 'counters');
+		const fileName = `${name}_${event}.txt`;
+		const filePath = path.join(countersDir, fileName);
+
+		if (!fs.existsSync(countersDir)) {
+			fs.mkdirSync(countersDir);
+		}
+
+		let newValue = 1;
+		if (fs.existsSync(filePath)) {
+			try {
+				const data = fs.readFileSync(filePath, 'utf8');
+				const firstLine = data.split(/\r?\n/)[0];
+				const num = parseInt(firstLine, 10);
+				if (!isNaN(num)) {
+					newValue = num + 1;
+				}
+			} catch (err) {
+				newValue = 1;
+				console.error(err);
+			}
+		}
+		fs.writeFileSync(filePath, String(newValue), 'utf8');
+		return newValue;
 	}
 }

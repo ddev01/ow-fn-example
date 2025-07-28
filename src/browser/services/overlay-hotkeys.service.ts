@@ -56,7 +56,7 @@ export class OverlayHotkeysService extends EventEmitter {
 				passthrough: true
 			},
 			(hotkey, state) => {
-				this.log(`on hotkey '${hotkey.name}' `, state);
+				// this.log(`on hotkey '${hotkey.name}' `, state);
 			}
 		);
 
