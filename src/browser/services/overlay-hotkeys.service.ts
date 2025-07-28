@@ -93,7 +93,7 @@ export class OverlayHotkeysService extends EventEmitter {
 
     this.overlayApi?.getAllWindows()?.forEach(w => {
       const overlayOptions = w.overlayOptions;
-      overlayOptions.passthrough = PassthroughType.NoPassThrough;
+      overlayOptions.passthrough = "noPassThrough";
     })
   }
 
@@ -102,7 +102,7 @@ export class OverlayHotkeysService extends EventEmitter {
 
     this.overlayApi.getAllWindows()?.forEach(w => {
       const overlayOptions = w.overlayOptions;
-      overlayOptions.zOrder = ZOrderType.Default;
+      overlayOptions.zOrder = "default";
     })
   }
 

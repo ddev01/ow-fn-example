@@ -84,13 +84,11 @@ export class DemoOSRWindowController {
     });
 
     windowIpc.on('setPassthrough', (e, value) => {
-      let pass = parseInt(value);
-      this.setWindowPassthrough(pass);
+      this.setWindowPassthrough(value as "noPassThrough" | "passThrough" | "passThroughAndNotify");
     });
 
     windowIpc.on('setZorder', (e, value) => {
-      let zOrder = parseInt(value);
-      this.setWindowZorder(zOrder);
+      this.setWindowZorder(value as "default" | "topMost" | "bottomMost");
     });
 
     windowIpc.on('devtools', () => {
