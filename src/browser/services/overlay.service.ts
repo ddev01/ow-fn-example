@@ -94,7 +94,7 @@ export class OverlayService extends EventEmitter {
     this.log('registering to overlay package events');
 
     this.overlayApi.on('game-launched', (event, gameInfo) => {
-      this.log('game launched', gameInfo);
+      this.log(`Game launched: Name: ${gameInfo.name} GameId: ${gameInfo.id} Supported: ${gameInfo.supported}`);
 
       if (gameInfo.processInfo.isElevated) {
         // ToDo: emit to log and notify user- we can't inject to elevated games
@@ -109,28 +109,28 @@ export class OverlayService extends EventEmitter {
     });
 
     this.overlayApi.on('game-injection-error', (gameInfo, error) => {
-      this.log('game-injection-error', error, gameInfo);
+      this.log(`game-injection-error: Name: ${gameInfo.name} GameId: ${gameInfo.id} Error: ${error}`);
     });
 
     this.overlayApi.on('game-injected', (gameInfo) => {
-      this.log('new game injected!', gameInfo);
+      this.log(`new game injected! Name: ${gameInfo.name} GameId: ${gameInfo.id}`);
     });
 
-    this.overlayApi.on('game-focus-changed', (window, game, focus) => {
-      this.log('game window focus changes', game.name, focus);
-    });
+    // this.overlayApi.on('game-focus-changed', (window, game, focus) => {
+    //   this.log('game window focus changes', game.name, focus);
+    // });
 
-    this.overlayApi.on('game-window-changed', (window, game, reason) => {
-      this.log('game window info changed', reason, window);
-    });
+    // this.overlayApi.on('game-window-changed', (window, game, reason) => {
+    //   this.log('game window info changed', reason, window);
+    // });
 
-    this.overlayApi.on('game-input-interception-changed', (info) => {
-      this.log('overlay input interception changed', info);
-    });
+    // this.overlayApi.on('game-input-interception-changed', (info) => {
+    //   this.log('overlay input interception changed', info);
+    // });
 
-    this.overlayApi.on('game-input-exclusive-mode-changed', (info) => {
-      this.log('overlay input exclusive mode changed', info);
-    });
+    // this.overlayApi.on('game-input-exclusive-mode-changed', (info) => {
+    //   this.log('overlay input exclusive mode changed', info);
+    // });
   }
 
   /** */

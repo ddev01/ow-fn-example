@@ -100,7 +100,7 @@ export class GameEventsService extends EventEmitter {
       //   return;
       // }
 
-      this.emit('log', 'gep: register game-detected', gameId, name, gameInfo);
+      this.emit('log', 'gep: register game-detected', gameId, name);
       e.enable();
       this.activeGame = gameId;
 
