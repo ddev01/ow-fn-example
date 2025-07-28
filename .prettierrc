@@ -1,0 +1,19 @@
+{
+	"singleQuote": true,
+	"semi": true,
+	"useTabs": true,
+	"tabWidth": 2,
+	"printWidth": 80,
+	"trailingComma": "none",
+	"bracketSpacing": true,
+	"arrowParens": "avoid",
+	"ignore": [
+		"node_modules",
+		"dist",
+		"build",
+		"package.json",
+		"package-lock.json",
+		"yarn.lock",
+		"README.md"
+	]
+}
