@@ -1,6 +1,7 @@
 import { app as electronApp } from 'electron';
 import { overwolf } from '@overwolf/ow-electron'; // TODO: wil be @overwolf/ow-electron
 import EventEmitter from 'events';
+import { kGameIds } from '@overwolf/ow-electron-packages-types/game-list';
 
 const app = electronApp as overwolf.OverwolfApp;
 
@@ -107,6 +108,14 @@ export class GameEventsService extends EventEmitter {
 
 			// in order to start receiving event/info
 			// setRequiredFeatures should be set
+
+			// Register events for fortnite specifically
+			if (gameId === kGameIds.Fortnite) {
+				this.gepApi.setRequiredFeatures(gameId, [
+					'killed', //Event when local player makes a kill, not when he is killed.
+					'death'
+				]);
+			}
 		});
 
 		// undocumented (will add it fir next version) event to track game-exit
@@ -132,6 +141,19 @@ export class GameEventsService extends EventEmitter {
 		// When a new Game Event is fired
 		this.gepApi.on('new-game-event', (e, gameId, ...args) => {
 			this.emit('log', 'new-event', gameId, ...args);
+
+			// Fortnite specific event handling
+			if (gameId === kGameIds.Fortnite) {
+				const eventData = args[0] as any;
+				if (typeof eventData === 'object' && eventData !== null) {
+					switch (eventData.event) {
+						case 'killed':
+							break;
+						case 'death':
+							break;
+					}
+				}
+			}
 		});
 
 		// If GEP encounters an error
