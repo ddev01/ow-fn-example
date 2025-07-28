@@ -1,8 +1,13 @@
-import { app } from "electron";
-import { overwolf } from '@overwolf/ow-electron'
-import { ExclusiveInputOptions, IOverwolfOverlayApi, PassthroughType, ZOrderType } from '@overwolf/ow-electron-packages-types';
-import EventEmitter from "events";
-import { OverlayService } from "./overlay.service";
+import { app } from 'electron';
+import { overwolf } from '@overwolf/ow-electron';
+import {
+	ExclusiveInputOptions,
+	IOverwolfOverlayApi,
+	PassthroughType,
+	ZOrderType
+} from '@overwolf/ow-electron-packages-types';
+import EventEmitter from 'events';
+import { OverlayService } from './overlay.service';
 
 const owElectron = app as overwolf.OverwolfApp;
 
@@ -10,109 +15,115 @@ const owElectron = app as overwolf.OverwolfApp;
  * Sample class handling in-game hotkeys
  */
 export class OverlayHotkeysService extends EventEmitter {
-  /**
-   *
-   */
-  constructor(overlayService: OverlayService) {
-    super();
+	/**
+	 *
+	 */
+	constructor(overlayService: OverlayService) {
+		super();
 
-    overlayService.on('ready', this.installHotKeys.bind(this));
-  }
+		overlayService.on('ready', this.installHotKeys.bind(this));
+	}
 
-  /**
-   *
-   * Update existing hotkey
-   */
-  public updateHotkey() {
-    if (!this.overlayApi) {
-      return;
-    }
+	/**
+	 *
+	 * Update existing hotkey
+	 */
+	public updateHotkey() {
+		if (!this.overlayApi) {
+			return;
+		}
 
-    // update existing hot key...
-    const hotkey = 'tabHotKeyPassThrow';
-    const passThrowHotKey =
-      this.overlayApi.hotkeys.all().find(h => h.name == hotkey);
+		// update existing hot key...
+		const hotkey = 'tabHotKeyPassThrow';
+		const passThrowHotKey = this.overlayApi.hotkeys
+			.all()
+			.find(h => h.name == hotkey);
 
-    passThrowHotKey.passthrough = !passThrowHotKey.passthrough;
-    this.overlayApi.hotkeys.update(passThrowHotKey);
-  };
+		passThrowHotKey.passthrough = !passThrowHotKey.passthrough;
+		this.overlayApi.hotkeys.update(passThrowHotKey);
+	}
 
-  /**
-   * Install Overlay hotkeys. must be call after 'overlay' package is ready
-   */
-  private installHotKeys() {
+	/**
+	 * Install Overlay hotkeys. must be call after 'overlay' package is ready
+	 */
+	private installHotKeys() {
+		// non blocked hot key
+		this.overlayApi.hotkeys.register(
+			{
+				name: 'tabHotKeyPassThrow',
+				keyCode: 9, // TAB
 
-    // non blocked hot key
-    this.overlayApi.hotkeys.register({
-      name: "tabHotKeyPassThrow",
-      keyCode: 9, // TAB
+				passthrough: true
+			},
+			(hotkey, state) => {
+				this.log(`on hotkey '${hotkey.name}' `, state);
+			}
+		);
 
-      passthrough: true
+		// reset OSR passthrough
+		this.overlayApi.hotkeys.register(
+			{
+				name: 'resetPassThrow',
+				keyCode: 82, // r
+				modifiers: {
+					ctrl: true
+				},
+				passthrough: true
+			},
+			(hotkey, state) => {
+				console.info(`on hotkey '${hotkey.name}' `, state);
 
-    }, (hotkey, state) => {
-      this.log(`on hotkey '${hotkey.name}' `, state);
-    })
+				if (state == 'pressed') {
+					this.resetOSRPassthrough();
+				}
+			}
+		);
 
-    // reset OSR passthrough
-    this.overlayApi.hotkeys.register({
-      name: "resetPassThrow",
-      keyCode: 82, // r
-      modifiers: {
-        ctrl: true
-      },
-      passthrough: true
+		// reset zOrder
+		this.overlayApi.hotkeys.register(
+			{
+				name: 'resetzOrder',
+				keyCode: 90, // z
+				modifiers: {
+					ctrl: true
+				},
+				passthrough: true
+			},
+			(hotkey, state) => {
+				console.info(`on hotkey '${hotkey.name}' `, state);
 
-    }, (hotkey, state) => {
-      console.info(`on hotkey '${hotkey.name}' `, state);
+				if (state == 'pressed') {
+					this.resetZOrder();
+				}
+			}
+		);
+	}
 
-      if (state == 'pressed') {
-        this.resetOSRPassthrough();
-      }
-    })
+	private resetOSRPassthrough() {
+		this.log(`resting passthrough!`);
 
-    // reset zOrder
-    this.overlayApi.hotkeys.register({
-      name: "resetzOrder",
-      keyCode: 90, // z
-      modifiers: {
-        ctrl: true
-      },
-      passthrough: true
+		this.overlayApi?.getAllWindows()?.forEach(w => {
+			const overlayOptions = w.overlayOptions;
+			overlayOptions.passthrough = 'noPassThrough';
+		});
+	}
 
-    }, (hotkey, state) => {
-      console.info(`on hotkey '${hotkey.name}' `, state);
+	private resetZOrder() {
+		this.log(`resting zOrder!`);
 
-      if (state == 'pressed') {
-        this.resetZOrder();
-      }
-    })
-  }
+		this.overlayApi.getAllWindows()?.forEach(w => {
+			const overlayOptions = w.overlayOptions;
+			overlayOptions.zOrder = 'default';
+		});
+	}
 
-  private resetOSRPassthrough() {
-    this.log(`resting passthrough!`);
+	/** */
+	private log(message: string, ...args: any[]) {
+		this.emit('log', message, ...args);
+	}
 
-    this.overlayApi?.getAllWindows()?.forEach(w => {
-      const overlayOptions = w.overlayOptions;
-      overlayOptions.passthrough = "noPassThrough";
-    })
-  }
-
-  private resetZOrder() {
-    this.log(`resting zOrder!`);
-
-    this.overlayApi.getAllWindows()?.forEach(w => {
-      const overlayOptions = w.overlayOptions;
-      overlayOptions.zOrder = "default";
-    })
-  }
-
-  /** */
-  private log(message: string, ...args: any[]) {
-    this.emit('log', message, ...args);
-  }
-
-  //----------------------------------------------------------------------------
-  get overlayApi(): IOverwolfOverlayApi {
-    return (owElectron.overwolf.packages as any).overlay as IOverwolfOverlayApi;
-  }
+	//----------------------------------------------------------------------------
+	get overlayApi(): IOverwolfOverlayApi {
+		return (owElectron.overwolf.packages as any).overlay as IOverwolfOverlayApi;
+	}
 }

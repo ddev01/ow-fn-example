@@ -1,5 +1,5 @@
-import {app as ElectronApp } from 'electron';
-import { Application } from "./application";
+import { app as ElectronApp } from 'electron';
+import { Application } from './application';
 import { OverlayHotkeysService } from './services/overlay-hotkeys.service';
 import { OverlayService } from './services/overlay.service';
 import { GameEventsService } from './services/gep.service';
@@ -11,35 +11,35 @@ import { OverlayInputService } from './services/overlay-input.service';
  * TODO: Integrate your own dependency-injection library
  */
 const bootstrap = (): Application => {
-  const overlayService = new OverlayService();
-  const overlayHotkeysService = new OverlayHotkeysService(overlayService);
-  const gepService = new GameEventsService();
-  const inputService = new OverlayInputService(overlayService);
+	const overlayService = new OverlayService();
+	const overlayHotkeysService = new OverlayHotkeysService(overlayService);
+	const gepService = new GameEventsService();
+	const inputService = new OverlayInputService(overlayService);
 
-  const createDemoOsrWindowControllerFactory = (): DemoOSRWindowController => {
-    const controller = new DemoOSRWindowController(overlayService);
-    return controller;
-  }
+	const createDemoOsrWindowControllerFactory = (): DemoOSRWindowController => {
+		const controller = new DemoOSRWindowController(overlayService);
+		return controller;
+	};
 
-  const mainWindowController = new MainWindowController(
-    gepService,
-    overlayService,
-    createDemoOsrWindowControllerFactory,
-    overlayHotkeysService,
-    inputService
-  );
+	const mainWindowController = new MainWindowController(
+		gepService,
+		overlayService,
+		createDemoOsrWindowControllerFactory,
+		overlayHotkeysService,
+		inputService
+	);
 
-  return new Application(overlayService, gepService, mainWindowController);
-}
+	return new Application(overlayService, gepService, mainWindowController);
+};
 
 const app = bootstrap();
 
 ElectronApp.whenReady().then(() => {
-  app.run();
+	app.run();
 });
 
 ElectronApp.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    ElectronApp.quit();
-  }
+	if (process.platform !== 'darwin') {
+		ElectronApp.quit();
+	}
 });
